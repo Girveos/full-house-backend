@@ -13,6 +13,6 @@ const userSchema = new Schema({
     password : {type: String, required: true },
     avatar: {type: String},
     active: {type: Boolean, default: false},
-    role: {type: String, default: "guess"}
+    role: {type: String, default: "user"}
 })
 module.exports = mongoose.model("UserCollection", userSchema);

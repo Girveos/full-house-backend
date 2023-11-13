@@ -27,6 +27,18 @@ const createRefreshToken = (user) => {
     return jwt.sign(payload, JWT_SECRET_KEY);
 };
 
+const generateVerificationToken = (user) => {
+    const expToken = new Date();
+    expToken.setDate(expToken.getDate() + 1);
+    const payload = {
+        token_type: "verification",
+        user_id: user._id,
+        iat: Date.now(),
+        exp: expToken.getTime(),
+    };
+    return jwt.sign(payload, JWT_SECRET_KEY);
+};
+
 const decoded = (token) => {
     return jwt.decode(token, JWT_SECRET_KEY);
 }
@@ -34,5 +46,6 @@ const decoded = (token) => {
 module.exports = {
     createAccessToken,
     createRefreshToken,
+    generateVerificationToken,
     decoded
 };

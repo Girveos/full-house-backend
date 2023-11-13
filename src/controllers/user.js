@@ -2,7 +2,7 @@ const user_model = require("../models/user");
 const bcrypt = require("bcryptjs");
 
 const validateEmail = email => {
-    const emaildomain = /@(gmail|outlook)\.com$/;
+    const emaildomain = /@(gmail|outlook|hotmail)\.com$/;
     return emaildomain.test(email);
 };
 

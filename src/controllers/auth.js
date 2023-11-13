@@ -48,6 +48,7 @@ const register = async (req, res) => {
         });
 
         const userStorage = await user.save();
+
         res.status(201).send(userStorage);
     } catch (error) {
         res.status(400).send({ msg: "Error al crear el usuario: " + error });
