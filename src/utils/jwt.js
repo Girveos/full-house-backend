@@ -9,10 +9,24 @@ const createAccessToken = (user) => {
         user_id : user._id,
         iat : Date.now(),
         ep : expToken.getTime(),
-        role : user.role
+        role : user.role,
+        document: user.document
     };
     return jwt.sign(payload, JWT_SECRET_KEY);
 };
+
+const ResetPasswordToken = (user) =>{
+    const expToken = new Date();
+    expToken.setHours(expToken.getHours() + 1);
+    const payload = {
+      token_type: "access",
+      user_id: user._id,
+      user_email: user.email,
+      iat: Date.now(),
+      exp: expToken.getTime(),
+    };
+    return jwt.sign(payload, JWT_SECRET_KEY);
+  };
 
 const createRefreshToken = (user) => {
     const expToken = new Date();
@@ -22,7 +36,8 @@ const createRefreshToken = (user) => {
         user_id : user._id,
         iat : Date.now(),
         ep : expToken.getTime(),
-        role : user.role
+        role : user.role,
+        document: user.document
     };
     return jwt.sign(payload, JWT_SECRET_KEY);
 };
@@ -46,6 +61,7 @@ const decoded = (token) => {
 module.exports = {
     createAccessToken,
     createRefreshToken,
+    ResetPasswordToken,
     generateVerificationToken,
     decoded
 };
