@@ -135,10 +135,11 @@ const listUsers = async (req, res) => {
     }
 
     try {
-        const data = await user_model.find();
+        const requestingUserId = req.user.user_id;
+        const data = await user_model.find({ _id: { $ne: requestingUserId } });
         res.json(data);
     } catch (err) {
-        res.status(500).json({ message: err });
+        res.status(500).json({ message: err.message });
     }
 };
 
@@ -170,7 +171,6 @@ const listMe = async (req, res) => {
             return res.status(400).json({ message: "Usuario no encontrado " });
         }
         res.json(data);
-        console.log('Controlador listMe:', data);
     } catch (err) {
         res.status(500).json({ message: err + "nona" });
     }
