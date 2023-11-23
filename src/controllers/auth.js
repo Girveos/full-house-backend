@@ -62,7 +62,7 @@ const register = async (req, res) => {
         state,
         documentType,
         document,
-        avatar
+        /* avatar */
     } = req.body;
 
     if (!email) return res.status(400).send({ msg: "El email es requerido" });
@@ -82,7 +82,7 @@ const register = async (req, res) => {
         const salt = bcrypt.genSaltSync(10);
         const hashPassword = bcrypt.hashSync(password, salt);
 
-        const avatar = req.file ? req.file.filename : null;
+       /*  const avatar = req.file ? req.file.filename : null; */
 
         const user = new User({
             firstname,
@@ -95,10 +95,11 @@ const register = async (req, res) => {
             state,
             documentType,
             document,
-            avatar
+            /* avatar */
         });
 
         const userStorage = await user.save();
+
 
         accountActivation(userStorage);
         const activationLink = `http://localhost:3001/api/v1/user/activate/${userStorage._id}`;

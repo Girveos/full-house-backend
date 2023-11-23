@@ -106,18 +106,18 @@ const createUser = async (req, res) => {
         document,
         active,
         role,
-        avatar,
+        /* avatar, */
     });
 
     try {
         const data = await newUser.save();
 
-        if (data) {
+       /*  if (data) {
             return res.status(201).json({
                 ...data._doc,
                 avatar: avatar,
             });
-        }
+        } */
     } catch (err) {
         if (err.name === 'ValidationError') {
             const errorMessages = Object.values(err.errors).map(error => error.message);
@@ -219,7 +219,7 @@ const editMe = async (req, res) => {
     const userId = req.user.user_id;
     const query = { _id: userId };
 
-    const allowedFields = ["firstname", "lastname", "contry", "depto", "state", "municipality"];
+    const allowedFields = ["firstname", "lastname", "contry", "depto", "state", "municipality", "active"];
 
     const update = {};
     allowedFields.forEach(field => {
@@ -227,7 +227,7 @@ const editMe = async (req, res) => {
             update[field] = req.body[field];
         }
     });
-
+    console.log(req.body);
     try {
         const userExists = await user_model.exists(query);
         if (!userExists) {
@@ -237,6 +237,7 @@ const editMe = async (req, res) => {
         await user_model.updateOne(query, { $set: update });
         const updatedUser = await user_model.findById(userId);
         res.status(200).json(updatedUser);
+        console.log("Aqui estamos");
     } catch (err) {
         res.status(500).json({ message: err });
     }
