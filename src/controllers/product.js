@@ -1,29 +1,41 @@
 const product_model = require("../models/product");
 const mongoose = require('mongoose');
 const multer = require('multer');
+const path = require('path');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-    cb(null, path.resolve(__dirname, '../../Frontend/full-house-frontend/src/assets/avatar'));
+        cb(null, path.resolve(__dirname, '../../../full-house-frontend/src/assets/avatar'));
     },
     filename: function (req, file, cb) {
-    cb(null, file.originalname);
+        cb(null, file.originalname);
     },
 });
 
 
-const upload = multer({ storage: storage });
+const upload = multer(
+    {
+    storage: storage
+}).fields([
+    { name: 'photo1'},
+    { name: 'photo2'},
+    { name: 'photo3'},
+]);
+
 
 const createProduct = async (req, res) => {
-    if (req.user.role !== "admin") {
-        return res.status(403).json({ message: "No tienes permiso para crear productos" });
+    console.log('Entrando en la función createProduct');
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'No tienes permiso para crear productos' });
     }
 
     try {
-        upload.any()(req, res, async function (err) {
-            if (err) {
-                return res.status(500).send({ msg: 'Error al procesar los datos del formulario' });
-            }
+        upload(req, res, async function (err) {
+            if (err instanceof multer.MulterError) {
+                return res.status(501).send({ msg: 'Error de Multer: ' + err.message });
+            } else if (err) {
+                return res.status(501).send({ msg: 'Error al procesar los datos del formulario: ' + err.message });
+            }            
 
             const {
                 name,
@@ -38,20 +50,20 @@ const createProduct = async (req, res) => {
                 description,
                 active,
                 available,
-                category
+                category, 
             });
 
-            if (req.files && req.files.length > 0) {
-                req.files.forEach((file, index) => {
-                    product[`photo${index + 1}`] = file.filename;
-                });
+             for (let i = 1; i <= 3; i++) {
+                const fileField = `photo${i}`;
+                const file = req.files[fileField][0];
+                product[fileField] = file ? file.filename : null;
             }
 
             const productStorage = await product.save();
             res.status(201).json({ msg: 'Producto creado con éxito', product: productStorage });
         });
     } catch (error) {
-        res.status(400).send({ msg: 'Error al crear el producto: ' + error });
+        res.status(400).send({ msg: 'Error al crear el producto: ' + error.message });
     }
 };
 

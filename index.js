@@ -7,18 +7,6 @@ const path = require('path');
 const app = express();
 require("dotenv").config();
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      const destinationPath = path.join(__dirname, '../../Frontend/full-house-frontend/src/assets/avatar');
-      cb(null, destinationPath);
-    },
-    filename: function (req, file, cb) {
-      cb(null,file.originalname +'.png' );
-    },
-  });
-
-const upload = multer({ storage: storage });
-
 app.use(cors());
 
 app.listen(process.env.PORT_PC, () =>
@@ -36,6 +24,5 @@ mongoose
     .catch((err) => console.error(err));
 
 app.use(express.json());
-app.use(upload.single('avatar'));
 
 routes_system(app);
