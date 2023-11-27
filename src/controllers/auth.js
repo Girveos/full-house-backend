@@ -5,37 +5,16 @@ require("dotenv").config();
 const accountSid = process.env.accountSid;
 const authToken = process.env.authToken;
 const client = require('twilio')(accountSid, authToken);
+const multer = require('multer');
+const upload = multer();
+const nodemailer = require("nodemailer");
+const transporter = require("../config/mailer");
 
-const sgMail = require("@sendgrid/mail");
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-async function enviarCorreoSendGrid(
-    destinatario,
-    asunto,
-    contenido,
-    linkToPage
-) {
-    const msg = {
-        to: `${destinatario}`,
-        from: "jeronimo.corteso@autonoma.edu.co",
-        subject: `${asunto}`,
-        text: `${contenido}`,
-    };
 
-    sgMail
-        .send(msg)
-        .then(() => {
-            console.log('Email sent')
-        })
-        .catch((error) => {
-            console.error(error)
-        })
-        console.log("Correo enviado sendgrid");
-}
-
-async function accountActivation(user) {
+/* async function accountActivation(user) {
     try {
-        const token = jwt.ResetPasswordToken(user);
+        const token = jwt.generateVerificationToken(user);
     
         const asunto = "Verifica tu cuenta";
         const linkToResetPage = `http://localhost:3000/login?token=${token}`;
@@ -48,9 +27,9 @@ async function accountActivation(user) {
         console.error(error);
     }
 }
-
+ */
 const register = async (req, res) => {
-
+    
     const {
         firstname,
         lastname,
@@ -64,6 +43,8 @@ const register = async (req, res) => {
         document,
         /* avatar */
     } = req.body;
+
+    console.log("Datos recibidos en la solicitud:", req.body);
 
     if (!email) return res.status(400).send({ msg: "El email es requerido" });
     if (!password) return res.status(400).send({ msg: "La contraseña es requerida" });
@@ -99,10 +80,25 @@ const register = async (req, res) => {
         });
 
         const userStorage = await user.save();
+        const token = jwt.generateVerificationToken(user);
 
+        const activationLink = `http://localhost:3000/login?token=${token}`;
 
-        accountActivation(userStorage);
-        const activationLink = `http://localhost:3001/api/v1/user/activate/${userStorage._id}`;
+        const mailoptions = {
+            from: '"Debes activar tu cuenta" <jero713123@gmail.com>', 
+            to: userStorage.email,
+            subject: "Activa tú cuenta", 
+            text: `Debes iniciar sesión para activar tu cuenta por medio de este link:${activationLink} `
+          }
+        
+          await transporter.sendMail(mailoptions, (error, info) => {
+            if (error){
+              console.log(error.menssage);
+            } else {
+              console.log("Email enviado");
+            }
+          }
+          );
 
 
 
@@ -120,7 +116,6 @@ const register = async (req, res) => {
     }
 
 };
-
 
 const login = async (req, res) => {
     const { email, password } = req.body;
