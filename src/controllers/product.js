@@ -5,7 +5,7 @@ const path = require('path');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.resolve(__dirname, '../../../full-house-frontend/src/assets/avatar'));
+        cb(null, path.resolve(__dirname, '../../../practice-2-react-frontend/src/assets/images/Productsphotos'));
     },
     filename: function (req, file, cb) {
         cb(null, file.originalname);
@@ -13,8 +13,7 @@ const storage = multer.diskStorage({
 });
 
 
-const upload = multer(
-    {
+const upload = multer({
     storage: storage
 }).fields([
     { name: 'photo1'},
@@ -24,7 +23,6 @@ const upload = multer(
 
 
 const createProduct = async (req, res) => {
-    console.log('Entrando en la función createProduct');
     if (req.user.role !== 'admin') {
         return res.status(403).json({ message: 'No tienes permiso para crear productos' });
     }
@@ -32,17 +30,20 @@ const createProduct = async (req, res) => {
     try {
         upload(req, res, async function (err) {
             if (err instanceof multer.MulterError) {
-                return res.status(501).send({ msg: 'Error de Multer: ' + err.message });
+                return res.status(500).send({ msg: 'Error al cargar el archivo: ' + err.message });
             } else if (err) {
-                return res.status(501).send({ msg: 'Error al procesar los datos del formulario: ' + err.message });
-            }            
+                return res.status(500).send({ msg: 'Error al procesar los datos del formulario' });
+            }
 
             const {
                 name,
                 description,
                 active,
                 available,
-                category
+                category, 
+                brand, 
+                price,
+                model
             } = req.body;
 
             const product = new product_model({
@@ -51,6 +52,9 @@ const createProduct = async (req, res) => {
                 active,
                 available,
                 category, 
+                brand, 
+                price,
+                model
             });
 
              for (let i = 1; i <= 3; i++) {
@@ -68,10 +72,6 @@ const createProduct = async (req, res) => {
 };
 
 const listProducts = async (req, res) => {
-    if (req.user.role !== "admin") {
-        return res.status(403).json({ message: "No tienes permiso para acceder a esta información" });
-    }
-
     try {
         const data = await product_model.find();
         res.json(data);
@@ -81,6 +81,7 @@ const listProducts = async (req, res) => {
 };
 
 const listProduct = async (req, res) => {
+    console.log("aqui");
     if (req.user.role !== "admin") {
         return res.status(403).json({ message: "No tienes permiso para acceder a esta información" });
     }
@@ -115,9 +116,6 @@ const editProduct = async (req, res) => {
         }
     });
 
-    console.log(req.body, "body que llega");
-    console.log(update, "como se va a actualizar");
-    
     try {
         const productExists = await product_model.exists(query);
         if (!productExists) {

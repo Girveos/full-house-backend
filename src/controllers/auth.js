@@ -44,8 +44,6 @@ const register = async (req, res) => {
         /* avatar */
     } = req.body;
 
-    console.log("Datos recibidos en la solicitud:", req.body);
-
     if (!email) return res.status(400).send({ msg: "El email es requerido" });
     if (!password) return res.status(400).send({ msg: "La contraseña es requerida" });
 

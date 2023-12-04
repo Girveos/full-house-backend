@@ -74,8 +74,6 @@ const editCategory = async (req, res) => {
         }
     });
 
-    console.log(req.body, "body que llega");
-    console.log(update, "como se va a actualizar");
     
     try {
         const categoryExists = await category_model.exists(query);

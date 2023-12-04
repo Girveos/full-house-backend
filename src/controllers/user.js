@@ -10,7 +10,6 @@ const validateEmail = email => {
 
 const verifyAccount = async (req, res) => {
     const userId = req.params.userId;
-    console.log("userId:",userId);
     try {
       const user = await user_model.findById(new mongoose.Types.ObjectId(userId));
   
@@ -186,9 +185,6 @@ const editUser = async (req, res) => {
     const query = { _id: userId };
 
     const allowedFields = ["firstname", "lastname", "contry", "depto", "state", "municipality", "active", "role"];
-    console.log(allowedFields);
-    console.log(req.body.active);
-    console.log(req.user.role);
     const update = {};
     allowedFields.forEach(field => {
         if (req.body[field]) {
@@ -237,7 +233,6 @@ const editMe = async (req, res) => {
         await user_model.updateOne(query, { $set: update });
         const updatedUser = await user_model.findById(userId);
         res.status(200).json(updatedUser);
-        console.log("Aqui estamos");
     } catch (err) {
         res.status(500).json({ message: err });
     }
